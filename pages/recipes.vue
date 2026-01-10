@@ -103,8 +103,8 @@
                   {{ isExpanded(recipe.id) ? '隠す' : '表示' }}
                 </button>
               </td>
-              <td class="actions">
-                <button @click="editRecipe(recipe)" :disabled="isSubmitting">編集</button>
+                <td class="actions">
+                <button class="edit-btn" @click="editRecipe(recipe)" :disabled="isSubmitting">編集</button>
                 <button class="delete" @click="deleteRecipe(recipe.id)" :disabled="isSubmitting">削除</button>
               </td>
             </tr>

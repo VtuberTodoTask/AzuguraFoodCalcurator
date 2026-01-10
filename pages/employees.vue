@@ -58,7 +58,7 @@
               </span>
             </td>
             <td class="actions">
-              <button @click="editEmployee(employee)" :disabled="isSubmitting">編集</button>
+              <button class="edit-btn" @click="editEmployee(employee)" :disabled="isSubmitting">編集</button>
               <button class="delete" @click="deleteEmployee(employee.id)" :disabled="isSubmitting">削除</button>
             </td>
           </tr>

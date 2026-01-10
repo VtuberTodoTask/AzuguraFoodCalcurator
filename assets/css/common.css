@@ -16,6 +16,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 button[type="submit"] { background-color: #3498db; }
 button.delete { background-color: #e74c3c; }
 button[type="button"] { background-color: #95a5a6; }
+/* Edit buttons across management pages */
+button.edit-btn { background-color: #3498db; }
 table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
 th { background-color: #f2f2f2; }

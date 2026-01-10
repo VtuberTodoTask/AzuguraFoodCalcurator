@@ -37,7 +37,7 @@
             <td>{{ store.id }}</td>
             <td>{{ store.name }}</td>
             <td class="actions">
-              <button @click="editStore(store)" :disabled="isSubmitting">編集</button>
+              <button class="edit-btn" @click="editStore(store)" :disabled="isSubmitting">編集</button>
               <button class="delete" @click="deleteStore(store.id)" :disabled="isSubmitting">削除</button>
             </td>
           </tr>

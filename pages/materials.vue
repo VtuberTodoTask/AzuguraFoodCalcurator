@@ -43,7 +43,7 @@
             <td>{{ material.name }}</td>
             <td>¥{{ material.price.toLocaleString() }}</td>
             <td class="actions">
-              <button @click="editMaterial(material)" :disabled="isSubmitting">編集</button>
+              <button class="edit-btn" @click="editMaterial(material)" :disabled="isSubmitting">編集</button>
               <button class="delete" @click="handleDeleteMaterial(material.id)" :disabled="isSubmitting">削除</button>
             </td>
           </tr>
