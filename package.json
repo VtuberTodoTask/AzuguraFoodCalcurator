@@ -1,0 +1,19 @@
+{
+  "name": "restaurant-manager",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "start": "nuxt start",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "nuxt": "^3.12.2",
+    "@types/pg": "^8.11.6"
+  },
+  "dependencies": {
+    "pg": "^8.12.0"
+  }
+}

@@ -1,0 +1,48 @@
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Nuxt / build output
+.nuxt/
+.output/
+dist/
+/.serverless/
+
+# Environment files (do NOT commit secrets)
+.env
+.env.*
+.env.local
+.env.production
+.env.test
+
+# Logs
+*.log
+logs/
+log/
+
+# OS files
+*.swp
+*~
+
+# Database files
+*.sqlite
+*.db
+
+# IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Misc
+coverage/
+coverage-html/
+*.local
+
+# Render config (if you keep secrets here, remove them before publishing)
+render.yaml
