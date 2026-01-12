@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>原材料管理 (DB接続版)</h1>
+    <h1>原材料管理</h1>
 
     <div class="form-card">
       <h2>{{ isEditing ? '原材料の編集' : '新しい原材料の追加' }}</h2>
