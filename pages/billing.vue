@@ -2,8 +2,17 @@
   <div class="container">
     <h1>レシピ合計請求金額</h1>
 
+    <div class="help-toggle">
+      <label>
+        <input type="checkbox" v-model="showHelp" />
+        使い方を表示
+      </label>
+    </div>
+    <p v-if="showHelp" class="help-text page-intro">このページでは、販売するレシピを選択し、合計請求金額を計算します。計算結果は売上履歴として保存することもできます。</p>
+
     <div class="form-card">
       <h2>レシピを追加</h2>
+      <p v-if="showHelp" class="help-text">販売するレシピと数量を選んで「追加」ボタンを押すと、下の「選択レシピ」リストに追加されます。</p>
       <div class="selection-grid">
         <div class="form-group">
           <label for="recipe-select">レシピ</label>
@@ -24,7 +33,11 @@
 
     <div class="list-card">
       <h2>選択レシピ</h2>
-      <div v-if="selected.length === 0" class="empty-state">レシピを追加してください。</div>
+      <p v-if="showHelp" class="help-text">ここでリストアップされたレシピの登録価格（単価）に基づいて、合計請求金額が自動で計算されます。</p>
+      <div v-if="selected.length === 0" class="empty-state">
+        レシピを追加してください。
+        <p v-if="showHelp" class="help-text small">上のフォームからレシピを追加すると、ここに表示されます。</p>
+      </div>
       <div v-else>
         <ul class="selected-list">
           <li v-for="(s, i) in selected" :key="s.recipeId">
@@ -44,6 +57,7 @@
         </div>
 
         <div class="save-history">
+          <p v-if="showHelp" class="help-text">合計請求金額を売上として記録します。ヘッダーで販売担当の店員が選択されている必要があります。販売相手の名前やメモも任意で記録できます。</p>
           <label for="customer">販売相手（任意）</label>
           <input id="customer" v-model="customer" placeholder="顧客名やメモを入力" />
           <button @click="saveHistory" :disabled="totalBilling === 0" class="save-btn">履歴を保存</button>
@@ -60,6 +74,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+
+const showHelp = useCookie('show-billing-help', () => true);
 
 type Recipe = { id: number; name: string; store_id: number | null; price?: number };
 type Selected = { recipeId: number; quantity: number };
@@ -162,5 +178,43 @@ const saveHistory = async () => {
 .total { text-align:right; margin-top:1rem; font-size:1.2rem; }
 .copy-btn { background:#f39c12; }
 .reset-btn { background:#95a5a6; }
+.save-btn { background: #3498db; }
 .empty-state { color:#7f8c8d; padding:1rem; }
+
+/* Help Text Styles */
+.help-toggle {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  display: inline-block;
+}
+.help-toggle label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.help-text {
+  background-color: #e9f7fd;
+  border: 1px solid #bce8f1;
+  color: #31708f;
+  padding: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-size: 0.95em;
+}
+.help-text.page-intro {
+  margin-top: 0;
+}
+.help-text.small {
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85em;
+}
+.save-history .help-text {
+  margin-bottom: 1rem;
+}
 </style>

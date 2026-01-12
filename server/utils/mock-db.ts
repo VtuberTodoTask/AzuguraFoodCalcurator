@@ -47,8 +47,9 @@ const employees: Employee[] = [
   { id: 2, name: '店員B (Mock)', store_id: 1, is_manager: false },
   { id: 3, name: '店長C (Mock)', store_id: 2, is_manager: true },
   { id: 4, name: '店員D (Mock)', store_id: 2, is_manager: false },
+  { id: 5, name: '店員E (Mock)', store_id: 1, is_manager: false },
 ];
-let nextEmployeeId = 5;
+let nextEmployeeId = 6;
 
 
 // --- Recipes ---
@@ -90,10 +91,27 @@ interface SalesHistory {
   amount: number;
   customer?: string | null;
   employee_id?: number | null;
+  created_at: Date;
 }
 
-const salesHistory: SalesHistory[] = [];
-let nextSalesId = 1;
+const salesHistory: SalesHistory[] = [
+  // Store 1, Employee 2 (店員B)
+  { id: 1, amount: 2400, employee_id: 2, customer: '顧客1', created_at: new Date(new Date().setDate(new Date().getDate() - 4)) },
+  { id: 2, amount: 3600, employee_id: 2, customer: '顧客2', created_at: new Date(new Date().setDate(new Date().getDate() - 3)) },
+  { id: 3, amount: 1200, employee_id: 2, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 3)) },
+  { id: 4, amount: 4800, employee_id: 2, customer: '顧客3', created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+
+  // Store 2, Employee 4 (店員D)
+  { id: 5, amount: 1800, employee_id: 4, customer: '顧客4', created_at: new Date(new Date().setDate(new Date().getDate() - 5)) },
+  { id: 6, amount: 900,  employee_id: 4, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 2)) },
+  { id: 7, amount: 2700, employee_id: 4, customer: '顧客5', created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+
+  // Store 1, Employee 5 (店員E)
+  { id: 8, amount: 1500, employee_id: 5, customer: '顧客6', created_at: new Date(new Date().setDate(new Date().getDate() - 4)) },
+  { id: 9, amount: 3000, employee_id: 5, customer: '顧客7', created_at: new Date(new Date().setDate(new Date().getDate() - 2)) },
+  { id: 10, amount: 2000, employee_id: 5, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+];
+let nextSalesId = 11;
 
 
 // --- Mock DB Export ---
@@ -266,17 +284,19 @@ export const mockDb = {
   }
   ,
   salesHistory: {
-    async getAll(employeeId?: number) {
+    async getAll() {
       await sleep(50);
-      let rows = salesHistory.slice();
-      if (employeeId) {
-        rows = rows.filter(r => r.employee_id === employeeId);
-      }
-      return rows.sort((a, b) => a.id - b.id);
+      return salesHistory.slice().sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
     },
     async create(data: { amount: number; customer?: string | null; employee_id?: number | null }) {
       await sleep(50);
-      const newRow = { id: nextSalesId++, amount: data.amount, customer: data.customer || null, employee_id: data.employee_id || null };
+      const newRow: SalesHistory = {
+        id: nextSalesId++,
+        amount: data.amount,
+        customer: data.customer || null,
+        employee_id: data.employee_id || null,
+        created_at: new Date(),
+      };
       salesHistory.push(newRow);
       return newRow;
     }

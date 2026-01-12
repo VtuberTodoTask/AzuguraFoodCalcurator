@@ -2,12 +2,23 @@
   <div class="container">
     <h1>必要アイテム計算機</h1>
 
+    <div class="help-toggle">
+      <label>
+        <input type="checkbox" v-model="showHelp" />
+        使い方を表示
+      </label>
+    </div>
+    <p v-if="showHelp" class="help-text page-intro">このページでは、複数のレシピをまとめて作る際に必要な原材料の総量を自動で計算し、原価の合計を算出します。</p>
+
+
     <!-- Recipe Selection Card -->
     <div class="form-card">
       <h2>計算するレシピの追加</h2>
+      <p v-if="showHelp" class="help-text">作りたいレシピと数量を選んで「追加」ボタンを押すと、下の「計算対象」リストに追加されます。</p>
       <div class="selection-grid">
         <div class="form-group">
           <label for="recipe-select">レシピ</label>
+          <p v-if="showHelp" class="help-text small">登録済みのレシピから、原価を計算したいものを選びます。</p>
           <select id="recipe-select" v-model.number="currentSelection.recipeId">
             <option :value="0" disabled>レシピを選択...</option>
             <option v-for="recipe in availableRecipes" :key="recipe.id" :value="recipe.id">
@@ -17,6 +28,7 @@
         </div>
         <div class="form-group">
           <label for="quantity">数量</label>
+          <p v-if="showHelp" class="help-text small">そのレシピをいくつ作る予定か入力します。</p>
           <input type="number" id="quantity" v-model.number="currentSelection.quantity" min="1" />
         </div>
         
@@ -30,9 +42,11 @@
     <div class="list-card">
       <div v-if="selectedRecipes.length === 0" class="empty-state">
         <p>計算するレシピを追加してください。</p>
+        <p v-if="showHelp" class="help-text">上のフォームからレシピを追加すると、ここに表示されます。</p>
       </div>
       <div v-else>
         <h2>計算対象</h2>
+        <p v-if="showHelp" class="help-text">ここでリストアップされたレシピの材料をまとめて計算します。「計算する」ボタンを押してください。</p>
         <ul class="selected-recipes-list">
           <li v-for="(item, index) in selectedRecipes" :key="index">
             <div class="item-left">
@@ -53,6 +67,7 @@
 
         <div v-if="Object.keys(requiredMaterials).length > 0" class="results">
           <h3>計算結果：必要な原材料</h3>
+          <p v-if="showHelp" class="help-text">計算対象のすべてのレシピを作るのに必要な原材料の合計数量と、その原価合計が表示されます。</p>
           <ul class="results-list">
             <li v-for="material in requiredMaterials" :key="material.id">
               {{ material.name }} x {{ material.quantity }}
@@ -74,6 +89,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+
+const showHelp = useCookie('show-calculator-help', () => true);
 
 // --- Types ---
 type ItemType = 'MATERIAL' | 'RECIPE';
@@ -371,5 +388,43 @@ const copyResultsToClipboard = () => {
 .copy-btn {
   background-color: #f39c12;
   font-size: 0.9em;
+}
+
+/* Help Text Styles */
+.help-toggle {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  display: inline-block;
+}
+.help-toggle label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.help-text {
+  background-color: #e9f7fd;
+  border: 1px solid #bce8f1;
+  color: #31708f;
+  padding: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-size: 0.95em;
+}
+.help-text.page-intro {
+  margin-top: 0;
+}
+.help-text.small {
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85em;
+}
+.empty-state .help-text {
+  margin-top: 1rem;
 }
 </style>
