@@ -28,7 +28,6 @@
         <div class="selector">
           <label for="employee-select">店員:</label>
           <select id="employee-select" v-model="selectedEmployeeId" @change="onEmployeeChange">
-            <option :value="null">全員</option>
             <option v-for="employee in employees" :key="employee.id" :value="employee.id">
               {{ employee.name }}
             </option>
@@ -37,13 +36,21 @@
       </div>
     </header>
     <main class="app-main">
-      <NuxtPage />
+      <div v-if="!selectedEmployeeId" class="selection-prompt">
+        <h2>ようこそ！</h2>
+        <p>利用を開始するには、まずヘッダーから担当する店員を選択してください。</p>
+      </div>
+      <NuxtPage v-else />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
+
+useHead({
+  title: 'アズグラ飲食計算機'
+});
 
 const STORAGE_KEY_STORE = 'selectedStore';
 const STORAGE_KEY_EMPLOYEE = 'selectedEmployee';
@@ -57,7 +64,7 @@ interface Store {
   id: number;
   name: string;
 }
-const stores = ref<Store[]>([]);
+const stores = useState<Store[]>('stores', () => []);
 
 interface Employee {
   id: number;
@@ -154,6 +161,11 @@ onMounted(async () => {
   
   await fetchStores();
   await fetchEmployees();
+  
+  // If no employee is selected after loading, try to select the first one.
+  if (!selectedEmployeeId.value && employees.value.length > 0) {
+    selectedEmployeeId.value = employees.value[0].id;
+  }
 });
 </script>
 
@@ -216,5 +228,23 @@ onMounted(async () => {
 
 .app-main {
   padding: 1rem;
+}
+
+.selection-prompt {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 600px;
+  border: 1px solid #e9ecef;
+}
+.selection-prompt h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+.selection-prompt p {
+  color: #34495e;
+  font-size: 1.1rem;
 }
 </style>

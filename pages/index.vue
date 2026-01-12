@@ -2,6 +2,7 @@
   <div class="page">
     <h1>レストラン管理へようこそ</h1>
     <p>選択中の店舗: {{ storeName }}</p>
+    <p>選択中の店員: {{ employeeName }}</p>
 
     <section class="howto">
       <h2>簡単な使い方</h2>
@@ -38,11 +39,22 @@ import { ref, computed, onMounted } from 'vue'
 
 const selectedStore = useState('selectedStore', () => null)
 const selectedEmployeeId = useState('selectedEmployeeId', () => null)
+const stores = useState('stores', () => [])
 
 const storeName = computed(() => {
-  const s = selectedStore.value
-  if (!s) return '未選択'
-  return (s && s.name) ? s.name : `店舗 #${s}`
+  const storeId = selectedStore.value
+  if (!storeId) return '未選択'
+  
+  const store = stores.value.find(s => s.id === storeId)
+  return store ? store.name : `店舗 #${storeId}`
+})
+
+const employeeName = computed(() => {
+  const employeeId = selectedEmployeeId.value
+  if (!employeeId) return '未選択'
+  
+  const employee = allEmployees.value.find(e => e.id === employeeId)
+  return employee ? employee.name : `店員 #${employeeId}`
 })
 
 const allEmployees = ref([])
