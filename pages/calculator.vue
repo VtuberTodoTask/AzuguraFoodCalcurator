@@ -29,7 +29,7 @@
         <div class="form-group">
           <label for="quantity">数量</label>
           <p v-if="showHelp" class="help-text small">そのレシピをいくつ作る予定か入力します。</p>
-          <input type="number" id="quantity" v-model.number="currentSelection.quantity" min="1" />
+          <input type="number" id="quantity" v-model.number="currentSelection.quantity" min="1" inputmode="numeric" />
         </div>
         
         <div class="form-actions">

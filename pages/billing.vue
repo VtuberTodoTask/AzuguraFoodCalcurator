@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
           <label for="quantity">数量</label>
-          <input id="quantity" type="number" v-model.number="current.quantity" min="1" />
+          <input id="quantity" type="number" v-model.number="current.quantity" min="1" inputmode="numeric" />
         </div>
         <div class="form-actions">
           <button class="add-btn" @click="addRecipe" :disabled="!current.recipeId || current.quantity < 1">追加</button>

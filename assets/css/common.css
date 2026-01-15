@@ -182,7 +182,6 @@ tbody tr:hover {
 }
 
 
-/* General Responsive Styles */
 @media (max-width: 768px) {
   .container {
     margin: var(--spacing-md) auto;
@@ -194,6 +193,9 @@ tbody tr:hover {
   .form-card, .list-card {
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
+  }
+  .form-group input, .form-group select {
+    font-size: 16px; /* Prevent iOS zoom */
   }
   th, td {
     padding: var(--spacing-sm);

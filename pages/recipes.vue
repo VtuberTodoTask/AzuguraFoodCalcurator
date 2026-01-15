@@ -57,7 +57,7 @@
             </div>
             <div class="form-group">
               <label for="item-quantity">数量</label>
-              <input type="number" id="item-quantity" v-model.number="newItem.quantity" min="1" />
+              <input type="number" id="item-quantity" v-model.number="newItem.quantity" min="1" inputmode="numeric" />
             </div>
           </div>
           <button type="button" @click="addRecipeItem" class="add-item-btn">＋ 材料を追加</button>
