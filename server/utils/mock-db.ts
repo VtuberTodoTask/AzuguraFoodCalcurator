@@ -94,22 +94,29 @@ interface SalesHistory {
   created_at: Date;
 }
 
+const createSaleDate = (daysAgo: number, hour: number, minute: number = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(hour, minute, 0, 0);
+  return d;
+}
+
 const salesHistory: SalesHistory[] = [
   // Store 1, Employee 2 (店員B)
-  { id: 1, amount: 2400, employee_id: 2, customer: '顧客1', created_at: new Date(new Date().setDate(new Date().getDate() - 4)) },
-  { id: 2, amount: 3600, employee_id: 2, customer: '顧客2', created_at: new Date(new Date().setDate(new Date().getDate() - 3)) },
-  { id: 3, amount: 1200, employee_id: 2, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 3)) },
-  { id: 4, amount: 4800, employee_id: 2, customer: '顧客3', created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+  { id: 1, amount: 2400, employee_id: 2, customer: '顧客1', created_at: createSaleDate(4, 21, 30) }, // 4 days ago @ 21:30
+  { id: 2, amount: 3600, employee_id: 2, customer: '顧客2', created_at: createSaleDate(3, 22, 0) },  // 3 days ago @ 22:00
+  { id: 3, amount: 1200, employee_id: 2, customer: null,    created_at: createSaleDate(3, 1, 15) },   // 3 days ago @ 01:15
+  { id: 4, amount: 4800, employee_id: 2, customer: '顧客3', created_at: createSaleDate(1, 20, 5) },   // 1 day ago @ 20:05
 
   // Store 2, Employee 4 (店員D)
-  { id: 5, amount: 1800, employee_id: 4, customer: '顧客4', created_at: new Date(new Date().setDate(new Date().getDate() - 5)) },
-  { id: 6, amount: 900,  employee_id: 4, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 2)) },
-  { id: 7, amount: 2700, employee_id: 4, customer: '顧客5', created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+  { id: 5, amount: 1800, employee_id: 4, customer: '顧客4', created_at: createSaleDate(5, 23, 0) },  // 5 days ago @ 23:00
+  { id: 6, amount: 900,  employee_id: 4, customer: null,    created_at: createSaleDate(2, 2, 45) },   // 2 days ago @ 02:45
+  { id: 7, amount: 2700, employee_id: 4, customer: '顧客5', created_at: createSaleDate(1, 21, 0) },  // 1 day ago @ 21:00
 
   // Store 1, Employee 5 (店員E)
-  { id: 8, amount: 1500, employee_id: 5, customer: '顧客6', created_at: new Date(new Date().setDate(new Date().getDate() - 4)) },
-  { id: 9, amount: 3000, employee_id: 5, customer: '顧客7', created_at: new Date(new Date().setDate(new Date().getDate() - 2)) },
-  { id: 10, amount: 2000, employee_id: 5, customer: null,    created_at: new Date(new Date().setDate(new Date().getDate() - 1)) },
+  { id: 8, amount: 1500, employee_id: 5, customer: '顧客6', created_at: createSaleDate(4, 0, 30) },   // 4 days ago @ 00:30
+  { id: 9, amount: 3000, employee_id: 5, customer: '顧客7', created_at: createSaleDate(2, 22, 10) }, // 2 days ago @ 22:10
+  { id: 10, amount: 2000, employee_id: 5, customer: null,    created_at: createSaleDate(1, 2, 0) },    // 1 day ago @ 02:00
 ];
 let nextSalesId = 11;
 
@@ -299,6 +306,20 @@ export const mockDb = {
       };
       salesHistory.push(newRow);
       return newRow;
+    },
+    async update(id: number, data: Partial<{ amount: number; customer?: string | null, employee_id?: number | null }>) {
+      await sleep(50);
+      const index = salesHistory.findIndex(s => s.id === id);
+      if (index === -1) return null;
+      salesHistory[index] = { ...salesHistory[index], ...data };
+      return salesHistory[index];
+    },
+    async remove(id: number) {
+      await sleep(50);
+      const index = salesHistory.findIndex(s => s.id === id);
+      if (index === -1) return null;
+      const [removed] = salesHistory.splice(index, 1);
+      return removed;
     }
   }
 };

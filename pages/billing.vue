@@ -159,6 +159,7 @@ const saveHistory = async () => {
     };
     const res = await $fetch('/api/sales', { method: 'POST', body: payload });
     alert('売上履歴を保存しました。ID: ' + (res && res.id));
+    resetAll();
     customer.value = '';
   } catch (err) {
     console.error(err);

@@ -41,20 +41,33 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>金額</th>
+              <th @click="setSort('id')" class="sortable">
+                ID <span v-if="sortKey === 'id'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th @click="setSort('amount')" class="sortable">
+                金額 <span v-if="sortKey === 'amount'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
               <th>販売相手</th>
-              <th>店員</th>
+              <th @click="setSort('employee')" class="sortable">
+                店員 <span v-if="sortKey === 'employee'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
               <th>日時</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in displayedSales" :key="row.id">
+            <tr v-for="row in sortedSales" :key="row.id">
               <td>{{ row.id }}</td>
               <td>¥{{ formatAmount(row.amount) }}</td>
               <td>{{ row.customer || '-' }}</td>
               <td>{{ employeeName(row.employee_id) }}</td>
               <td>{{ formatDate(row.created_at) }}</td>
+              <td>
+                <div class="actions">
+                  <button @click="editSale(row)" class="edit">修正</button>
+                  <button @click="deleteSale(row.id)" class="delete">削除</button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -62,6 +75,36 @@
 
       <div v-else class="empty">表示する売上履歴がありません。</div>
     </div>
+
+    <!-- Edit Modal -->
+    <div v-if="editingSale" class="modal-overlay">
+      <div class="modal-content">
+        <h2>売上履歴の修正</h2>
+        <form @submit.prevent="updateSale">
+          <div class="form-group">
+            <label for="edit-amount">金額</label>
+            <input type="number" id="edit-amount" v-model.number="editForm.amount" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-customer">販売相手 (任意)</label>
+            <input type="text" id="edit-customer" v-model="editForm.customer">
+          </div>
+          <div v-if="isManager" class="form-group">
+            <label for="edit-employee">担当店員</label>
+            <select id="edit-employee" v-model="editForm.employee_id">
+              <option v-for="emp in employeesInStore" :key="emp.id" :value="emp.id">
+                {{ emp.name }}
+              </option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="primary">更新</button>
+            <button type="button" @click="cancelEdit">キャンセル</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -76,6 +119,104 @@ const selectedEmployeeId = useState('selectedEmployeeId', () => null)
 
 const { data: employees, refresh: refreshEmployees } = useFetch('/api/employees')
 const { data: sales, refresh: refreshSalesFetch } = useFetch('/api/sales', { lazy: true })
+
+// --- Editing State ---
+const editingSale = ref<any>(null);
+const editForm = ref({
+  amount: 0,
+  customer: '',
+  employee_id: null as number | null,
+});
+
+function editSale(sale: any) {
+  editingSale.value = sale;
+  editForm.value.amount = sale.amount;
+  editForm.value.customer = sale.customer || '';
+  editForm.value.employee_id = sale.employee_id;
+}
+
+function cancelEdit() {
+  editingSale.value = null;
+}
+
+async function updateSale() {
+  if (!editingSale.value) return;
+
+  try {
+    const payload: any = {
+      amount: editForm.value.amount,
+      customer: editForm.value.customer || null
+    };
+
+    if (isManager.value) {
+      payload.employee_id = editForm.value.employee_id;
+    }
+
+    await $fetch(`/api/sales/${editingSale.value.id}`, {
+      method: 'PUT',
+      body: payload
+    });
+    await refreshSales();
+    cancelEdit();
+  } catch (err) {
+    console.error('Failed to update sale:', err);
+    alert('売上履歴の更新に失敗しました。');
+  }
+}
+
+async function deleteSale(id: number) {
+  if (!confirm(`ID: ${id} の売上履歴を削除します。よろしいですか？`)) {
+    return;
+  }
+  try {
+    await $fetch(`/api/sales/${id}`, { method: 'DELETE' });
+    await refreshSales();
+  } catch (err) {
+    console.error('Failed to delete sale:', err);
+    alert('売上履歴の削除に失敗しました。');
+  }
+}
+// --- End Editing State ---
+
+
+// --- Sorting State ---
+const sortKey = ref('id');
+const sortAsc = ref(true);
+
+function setSort(key: string) {
+  if (sortKey.value === key) {
+    sortAsc.value = !sortAsc.value;
+  } else {
+    sortKey.value = key;
+    sortAsc.value = true;
+  }
+}
+
+const sortedSales = computed(() => {
+  const sales = [...displayedSales.value];
+  const key = sortKey.value;
+  const asc = sortAsc.value;
+
+  sales.sort((a: any, b: any) => {
+    let valA, valB;
+
+    if (key === 'employee') {
+      valA = employeeName(a.employee_id) || '';
+      valB = employeeName(b.employee_id) || '';
+    } else {
+      valA = a[key];
+      valB = b[key];
+    }
+
+    if (valA < valB) return asc ? -1 : 1;
+    if (valA > valB) return asc ? 1 : -1;
+    return 0;
+  });
+
+  return sales;
+});
+// --- End Sorting State ---
+
 
 const currentUser = computed(() => {
   if (!selectedEmployeeId.value || !employees.value) return null
@@ -152,16 +293,46 @@ const chartData = computed(() => {
     return null;
   }
 
-  // Determine the date range from all relevant sales data
+  // A business day is from 20:00 to 03:00 the next day.
+  const getBusinessDay = (dateString: string | Date): Date | null => {
+    const saleDate = new Date(dateString);
+    const hours = saleDate.getHours();
+
+    // Ignore sales between 3:00 AM and 7:59 PM
+    if (hours >= 3 && hours < 20) {
+      return null;
+    }
+
+    // Create a new date for the business day label
+    let businessDay = new Date(saleDate);
+
+    // If the sale happened between 00:00 and 02:59, it belongs to the previous calendar day's business period.
+    if (hours < 3) {
+      businessDay.setDate(businessDay.getDate() - 1);
+    }
+    
+    // Normalize to midnight for consistent grouping
+    businessDay.setHours(0, 0, 0, 0);
+
+    return businessDay;
+  }
+
+  // Determine the relevant sales data based on user role
   const relevantSales = isManager.value 
     ? salesData.filter((s: any) => employeesInStore.value.some((e: any) => e.id === s.employee_id))
     : salesData.filter((s: any) => s.employee_id === currentUser.value.id);
 
-  if (relevantSales.length === 0) return null;
+  // Assign a business day to each sale and filter out irrelevant ones
+  const salesWithBusinessDay = relevantSales
+    .map((sale: any) => ({ ...sale, businessDay: getBusinessDay(sale.created_at) }))
+    .filter((sale: any) => sale.businessDay !== null);
+
+  if (salesWithBusinessDay.length === 0) return null;
   
-  const allDates = relevantSales.map((s: any) => new Date(s.created_at));
-  const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
-  const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+  // Determine date range for labels from the business days
+  const allBusinessDayTimestamps = salesWithBusinessDay.map((s: any) => s.businessDay.getTime());
+  const minDate = new Date(Math.min(...allBusinessDayTimestamps));
+  const maxDate = new Date(Math.max(...allBusinessDayTimestamps));
   
   const labels: string[] = [];
   for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
@@ -174,10 +345,11 @@ const chartData = computed(() => {
     // Manager: Create a dataset for each employee in the store
     const storeEmployees = employeesInStore.value;
     const datasets = storeEmployees.map((employee: any, index: number) => {
-      const employeeSales = salesData.filter((s: any) => s.employee_id === employee.id);
+      const employeeSales = salesWithBusinessDay.filter((s: any) => s.employee_id === employee.id);
+      
       const dailyTotals = employeeSales.reduce((acc: any, sale: any) => {
-        const date = new Date(sale.created_at).toLocaleDateString();
-        acc[date] = (acc[date] || 0) + sale.amount;
+        const dateKey = sale.businessDay.toLocaleDateString();
+        acc[dateKey] = (acc[dateKey] || 0) + sale.amount;
         return acc;
       }, {});
 
@@ -195,10 +367,10 @@ const chartData = computed(() => {
 
   } else {
     // Regular employee: Single dataset for themselves
-    const mySales = salesData.filter((s: any) => s.employee_id === currentUser.value.id);
+    const mySales = salesWithBusinessDay; // Already filtered for business day and employee
     const dailyTotals = mySales.reduce((acc: any, sale: any) => {
-      const date = new Date(sale.created_at).toLocaleDateString();
-      acc[date] = (acc[date] || 0) + sale.amount;
+      const dateKey = sale.businessDay.toLocaleDateString();
+      acc[dateKey] = (acc[dateKey] || 0) + sale.amount;
       return acc;
     }, {});
 
@@ -294,5 +466,80 @@ th, td { border:1px solid #e6e6e6; padding:8px; text-align:left }
 .chart-container {
   position: relative;
   height: 300px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.actions button {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.actions .edit {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+.actions .delete {
+  background-color: #e74c3c;
+  color: white;
+  border-color: #e74c3c;
+}
+
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  min-width: 320px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+th.sortable:hover {
+  background-color: #f8f9fa;
 }
 </style>
