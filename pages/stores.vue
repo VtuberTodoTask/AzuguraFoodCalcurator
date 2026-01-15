@@ -23,26 +23,28 @@
       <h2>店舗一覧</h2>
       <div v-if="pending" class="loading">データを読み込んでいます...</div>
       <div v-else-if="error" class="error">エラー: {{ error.message }}</div>
-      <table v-else>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名前</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="!stores || stores.length === 0"><td colspan="3">店舗はまだありません。</td></tr>
-          <tr v-for="store in stores" :key="store.id">
-            <td>{{ store.id }}</td>
-            <td>{{ store.name }}</td>
-            <td class="actions">
-              <button class="edit-btn" @click="editStore(store)" :disabled="isSubmitting">編集</button>
-              <button class="delete" @click="deleteStore(store.id)" :disabled="isSubmitting">削除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名前</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!stores || stores.length === 0"><td colspan="3">店舗はまだありません。</td></tr>
+            <tr v-for="store in stores" :key="store.id">
+              <td>{{ store.id }}</td>
+              <td>{{ store.name }}</td>
+              <td class="actions">
+                <button class="edit-btn" @click="editStore(store)" :disabled="isSubmitting">編集</button>
+                <button class="delete" @click="deleteStore(store.id)" :disabled="isSubmitting">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

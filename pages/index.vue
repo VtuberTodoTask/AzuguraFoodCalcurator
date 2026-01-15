@@ -16,18 +16,12 @@
 
     <nav>
       <NuxtLink to="/calculator">必要アイテム計算機</NuxtLink>
-      |
       <NuxtLink to="/billing">請求計算</NuxtLink>
-      |
       <NuxtLink to="/sales-history">売上履歴</NuxtLink>
-      |
       <template v-if="isManagerSelected">
         <NuxtLink to="/recipes">レシピ管理</NuxtLink>
-        |
         <NuxtLink to="/materials">原材料管理</NuxtLink>
-        |
         <NuxtLink to="/stores">店舗管理</NuxtLink>
-        |
         <NuxtLink to="/employees">従業員管理</NuxtLink>
       </template>
     </nav>
@@ -90,10 +84,23 @@ onMounted(() => {
   margin: 0.75rem 0;
 }
 nav {
-  margin-top: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 nav a {
-  margin: 0 0.5rem;
-  color: var(--nuxt-link-color, #007bff);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background-color: #e9ecef;
+  color: #495057;
+  transition: background-color 0.2s, color 0.2s;
+}
+nav a:hover {
+  background-color: #dee2e6;
+  color: #212529;
 }
 </style>

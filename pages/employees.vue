@@ -36,34 +36,36 @@
       <h2>店員一覧</h2>
       <div v-if="employeesPending" class="loading">データを読み込んでいます...</div>
       <div v-else-if="employeesError" class="error">エラー: {{ employeesError.message }}</div>
-      <table v-else>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名前</th>
-            <th>店舗</th>
-            <th>役職</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="!employees || employees.length === 0"><td colspan="5">店員はまだいません。</td></tr>
-          <tr v-for="employee in employees" :key="employee.id">
-            <td>{{ employee.id }}</td>
-            <td>{{ employee.name }}</td>
-            <td>{{ getStoreName(employee.store_id) }}</td>
-            <td>
-              <span :class="['role-badge', employee.is_manager ? 'manager' : 'staff']">
-                {{ employee.is_manager ? '店長' : '店員' }}
-              </span>
-            </td>
-            <td class="actions">
-              <button class="edit-btn" @click="editEmployee(employee)" :disabled="isSubmitting">編集</button>
-              <button class="delete" @click="deleteEmployee(employee.id)" :disabled="isSubmitting">削除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名前</th>
+              <th>店舗</th>
+              <th>役職</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!employees || employees.length === 0"><td colspan="5">店員はまだいません。</td></tr>
+            <tr v-for="employee in employees" :key="employee.id">
+              <td>{{ employee.id }}</td>
+              <td>{{ employee.name }}</td>
+              <td>{{ getStoreName(employee.store_id) }}</td>
+              <td>
+                <span :class="['role-badge', employee.is_manager ? 'manager' : 'staff']">
+                  {{ employee.is_manager ? '店長' : '店員' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="edit-btn" @click="editEmployee(employee)" :disabled="isSubmitting">編集</button>
+                <button class="delete" @click="deleteEmployee(employee.id)" :disabled="isSubmitting">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

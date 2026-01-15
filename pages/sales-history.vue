@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="table-wrap" v-if="displayedSales.length">
+      <div class="table-wrapper" v-if="displayedSales.length">
         <table>
           <thead>
             <tr>
@@ -541,5 +541,34 @@ th.sortable {
 }
 th.sortable:hover {
   background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .refresh {
+    margin-left: 0;
+  }
+  .summary-list {
+    grid-template-columns: 1fr;
+  }
+  .chart-container {
+    height: 250px;
+  }
+  .table-wrapper table {
+    width: auto;
+    min-width: 100%;
+  }
+  .modal-content {
+    min-width: 0;
+    width: 90%;
+    padding: 1rem;
+  }
+  .modal-content h2 {
+    font-size: 1.2rem;
+  }
 }
 </style>

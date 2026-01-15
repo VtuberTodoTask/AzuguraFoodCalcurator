@@ -427,4 +427,29 @@ const copyResultsToClipboard = () => {
 .empty-state .help-text {
   margin-top: 1rem;
 }
+
+@media (max-width: 768px) {
+  .selection-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .add-btn {
+    width: auto;
+    justify-self: start;
+  }
+  .selected-recipes-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .calculate-actions {
+    flex-direction: column;
+  }
+  .calculate-actions button {
+    width: 100%;
+  }
+  .total-cost, .results-actions {
+    text-align: left;
+  }
+}
 </style>

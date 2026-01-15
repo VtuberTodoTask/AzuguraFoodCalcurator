@@ -77,52 +77,54 @@
       <h2>レシピ一覧</h2>
       <div v-if="recipesPending" class="loading">データを読み込んでいます...</div>
       <div v-else-if="recipesError" class="error">エラー: {{ recipesError.message }}</div>
-      <table v-else>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名前</th>
-            <th>店舗</th>
-            <th>料金</th>
-            <th>材料数</th>
-            <th>詳細</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="!recipes || recipes.length === 0"><td colspan="7">レシピはまだありません。</td></tr>
-          <template v-for="recipe in recipes" :key="recipe.id">
+      <div class="table-wrapper" v-else>
+        <table>
+          <thead>
             <tr>
-              <td>{{ recipe.id }}</td>
-              <td>{{ recipe.name }}</td>
-              <td>{{ getStoreName(recipe.store_id) }}</td>
-              <td>¥{{ (recipe.price || 0).toLocaleString() }}</td>
-              <td>{{ recipe.items.length }}</td>
-              <td>
-                <button @click="toggleRecipeDetails(recipe.id)" class="details-btn">
-                  {{ isExpanded(recipe.id) ? '隠す' : '表示' }}
-                </button>
-              </td>
-                <td class="actions">
-                <button class="edit-btn" @click="editRecipe(recipe)" :disabled="isSubmitting">編集</button>
-                <button class="delete" @click="deleteRecipe(recipe.id)" :disabled="isSubmitting">削除</button>
-              </td>
+              <th>ID</th>
+              <th>名前</th>
+              <th>店舗</th>
+              <th>料金</th>
+              <th>材料数</th>
+              <th>詳細</th>
+              <th>操作</th>
             </tr>
-            <tr v-if="isExpanded(recipe.id)" class="details-row">
-              <td colspan="6">
-                <div class="details-content">
-                  <h4>必要な材料</h4>
-                  <ul>
-                    <li v-for="(item, index) in recipe.items" :key="index">
-                      {{ getItemName(item) }} x {{ item.quantity }}
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <tr v-if="!recipes || recipes.length === 0"><td colspan="7">レシピはまだありません。</td></tr>
+            <template v-for="recipe in recipes" :key="recipe.id">
+              <tr>
+                <td>{{ recipe.id }}</td>
+                <td>{{ recipe.name }}</td>
+                <td>{{ getStoreName(recipe.store_id) }}</td>
+                <td>¥{{ (recipe.price || 0).toLocaleString() }}</td>
+                <td>{{ recipe.items.length }}</td>
+                <td>
+                  <button @click="toggleRecipeDetails(recipe.id)" class="details-btn">
+                    {{ isExpanded(recipe.id) ? '隠す' : '表示' }}
+                  </button>
+                </td>
+                  <td class="actions">
+                  <button class="edit-btn" @click="editRecipe(recipe)" :disabled="isSubmitting">編集</button>
+                  <button class="delete" @click="deleteRecipe(recipe.id)" :disabled="isSubmitting">削除</button>
+                </td>
+              </tr>
+              <tr v-if="isExpanded(recipe.id)" class="details-row">
+                <td colspan="7">
+                  <div class="details-content">
+                    <h4>必要な材料</h4>
+                    <ul>
+                      <li v-for="(item, index) in recipe.items" :key="index">
+                        {{ getItemName(item) }} x {{ item.quantity }}
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -344,5 +346,16 @@ const isExpanded = (id: number) => {
 .details-content ul {
   padding-left: 20px;
   margin: 0;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .add-item-btn {
+    width: 100%;
+  }
 }
 </style>

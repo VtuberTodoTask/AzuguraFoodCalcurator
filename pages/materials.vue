@@ -25,30 +25,32 @@
       <h2>原材料リスト</h2>
       <div v-if="pending" class="loading">データを読み込んでいます...</div>
       <div v-else-if="error" class="error">エラー: {{ error.message }}</div>
-      <table v-else>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名前</th>
-            <th>価格</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="!materials || materials.length === 0">
-            <td colspan="4">原材料はまだありません。</td>
-          </tr>
-          <tr v-for="material in materials" :key="material.id">
-            <td>{{ material.id }}</td>
-            <td>{{ material.name }}</td>
-            <td>¥{{ material.price.toLocaleString() }}</td>
-            <td class="actions">
-              <button class="edit-btn" @click="editMaterial(material)" :disabled="isSubmitting">編集</button>
-              <button class="delete" @click="handleDeleteMaterial(material.id)" :disabled="isSubmitting">削除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名前</th>
+              <th>価格</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!materials || materials.length === 0">
+              <td colspan="4">原材料はまだありません。</td>
+            </tr>
+            <tr v-for="material in materials" :key="material.id">
+              <td>{{ material.id }}</td>
+              <td>{{ material.name }}</td>
+              <td>¥{{ material.price.toLocaleString() }}</td>
+              <td class="actions">
+                <button class="edit-btn" @click="editMaterial(material)" :disabled="isSubmitting">編集</button>
+                <button class="delete" @click="handleDeleteMaterial(material.id)" :disabled="isSubmitting">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

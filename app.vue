@@ -1,37 +1,79 @@
 <template>
   <div>
     <header class="app-header">
-      <div class="left">
-        <div class="app-title"><NuxtLink to="/">アズグラ飲食計算機</NuxtLink></div>
-        <nav>
-          <NuxtLink to="/calculator" class="nav-link">必要アイテム計算機</NuxtLink>
-          <NuxtLink to="/billing" class="nav-link">請求計算</NuxtLink>
-          <NuxtLink to="/sales-history" class="nav-link">売上履歴</NuxtLink>
+      <div class="header-content">
+        <div class="left">
+          <div class="app-title"><NuxtLink to="/">アズグラ飲食計算機</NuxtLink></div>
+          <nav class="desktop-nav">
+            <NuxtLink to="/calculator" class="nav-link">アイテム計算</NuxtLink>
+            <NuxtLink to="/billing" class="nav-link">請求計算</NuxtLink>
+            <NuxtLink to="/sales-history" class="nav-link">売上履歴</NuxtLink>
+            <template v-if="isManagerSelected">
+              <NuxtLink to="/materials" class="nav-link">原材料</NuxtLink>
+              <NuxtLink to="/recipes" class="nav-link">レシピ</NuxtLink>
+              <NuxtLink to="/stores" class="nav-link">店舗</NuxtLink>
+              <NuxtLink to="/employees" class="nav-link">店員</NuxtLink>
+            </template>
+          </nav>
+        </div>
+        <div class="right">
+          <div class="selectors desktop-selectors">
+            <div class="selector">
+              <label for="store-select">店舗:</label>
+              <select id="store-select" v-model="selectedStore" @change="onStoreChange">
+                <option :value="null">全店舗</option>
+                <option v-for="store in stores" :key="store.id" :value="store.id">
+                  {{ store.name }}
+                </option>
+              </select>
+            </div>
+            <div class="selector">
+              <label for="employee-select">店員:</label>
+              <select id="employee-select" v-model="selectedEmployeeId" @change="onEmployeeChange">
+                <option v-for="employee in employees" :key="employee.id" :value="employee.id">
+                  {{ employee.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <button class="mobile-menu-toggle" @click="isMenuOpen = !isMenuOpen">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="mobile-menu" :class="{ 'is-open': isMenuOpen }">
+        <nav class="mobile-nav">
+          <NuxtLink to="/calculator" class="nav-link" @click="isMenuOpen = false">アイテム計算</NuxtLink>
+          <NuxtLink to="/billing" class="nav-link" @click="isMenuOpen = false">請求計算</NuxtLink>
+          <NuxtLink to="/sales-history" class="nav-link" @click="isMenuOpen = false">売上履歴</NuxtLink>
           <template v-if="isManagerSelected">
-            <NuxtLink to="/materials" class="nav-link">原材料管理</NuxtLink>
-            <NuxtLink to="/recipes" class="nav-link">レシピ管理</NuxtLink>
-            <NuxtLink to="/stores" class="nav-link">店舗管理</NuxtLink>
-            <NuxtLink to="/employees" class="nav-link">店員管理</NuxtLink>
+            <NuxtLink to="/materials" class="nav-link" @click="isMenuOpen = false">原材料</NuxtLink>
+            <NuxtLink to="/recipes" class="nav-link" @click="isMenuOpen = false">レシピ</NuxtLink>
+            <NuxtLink to="/stores" class="nav-link" @click="isMenuOpen = false">店舗</NuxtLink>
+            <NuxtLink to="/employees" class="nav-link" @click="isMenuOpen = false">店員</NuxtLink>
           </template>
         </nav>
-      </div>
-      <div class="selectors">
-        <div class="selector">
-          <label for="store-select">店舗:</label>
-          <select id="store-select" v-model="selectedStore" @change="onStoreChange">
-            <option :value="null">全店舗</option>
-            <option v-for="store in stores" :key="store.id" :value="store.id">
-              {{ store.name }}
-            </option>
-          </select>
-        </div>
-        <div class="selector">
-          <label for="employee-select">店員:</label>
-          <select id="employee-select" v-model="selectedEmployeeId" @change="onEmployeeChange">
-            <option v-for="employee in employees" :key="employee.id" :value="employee.id">
-              {{ employee.name }}
-            </option>
-          </select>
+        <div class="selectors mobile-selectors">
+          <div class="selector">
+            <label for="mobile-store-select">店舗:</label>
+            <select id="mobile-store-select" v-model="selectedStore" @change="onStoreChange">
+              <option :value="null">全店舗</option>
+              <option v-for="store in stores" :key="store.id" :value="store.id">
+                {{ store.name }}
+              </option>
+            </select>
+          </div>
+          <div class="selector">
+            <label for="mobile-employee-select">店員:</label>
+            <select id="mobile-employee-select" v-model="selectedEmployeeId" @change="onEmployeeChange">
+              <option v-for="employee in employees" :key="employee.id" :value="employee.id">
+                {{ employee.name }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
     </header>
@@ -51,6 +93,8 @@ import { ref, onMounted, watch, computed } from 'vue';
 useHead({
   title: 'アズグラ飲食計算機'
 });
+
+const isMenuOpen = ref(false);
 
 const STORAGE_KEY_STORE = 'selectedStore';
 const STORAGE_KEY_EMPLOYEE = 'selectedEmployee';
@@ -116,6 +160,7 @@ function filterEmployees() {
 function onStoreChange(event: Event) {
   const target = event.target as HTMLSelectElement;
   selectedStore.value = target.value ? Number(target.value) : null;
+  isMenuOpen.value = false;
 }
 
 function onEmployeeChange(event: Event) {
@@ -129,6 +174,7 @@ function onEmployeeChange(event: Event) {
       selectedStore.value = employee.store_id;
     }
   }
+  isMenuOpen.value = false;
 }
 
 // Persist selection
@@ -172,79 +218,141 @@ onMounted(async () => {
 <style>
 /* Global styles */
 .app-header {
+  background-color: var(--secondary-color);
+  padding: 0 var(--spacing-lg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2c3e50;
-  padding: 0 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: 60px;
 }
 
-.app-header nav {
+.left { display:flex; align-items:center; gap: var(--spacing-xl); }
+.app-title a { color: white; text-decoration: none; font-size: 1.25rem; font-weight: 700 }
+
+.desktop-nav {
   display: flex;
-  gap: 1.5rem;
+  gap: var(--spacing-lg);
 }
 
 .nav-link {
   color: white;
   text-decoration: none;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   font-weight: 500;
   position: relative;
   opacity: 0.8;
   transition: opacity 0.3s;
 }
+.nav-link:hover { opacity: 1; }
+.nav-link.router-link-active { opacity: 1; font-weight: 700; }
 
-.nav-link:hover {
-  opacity: 1;
-}
-
-.nav-link.router-link-active {
-  opacity: 1;
-}
-
-.nav-link.router-link-active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-color: #3498db;
-}
+.right { display: flex; align-items: center; gap: var(--spacing-lg); }
 
 .selectors {
   display: flex;
-  gap: 1.5rem;
-  color: white;
+  gap: var(--spacing-lg);
 }
 .selector select {
-  margin-left: 0.5rem;
+  margin-left: var(--spacing-sm);
   padding: 0.25rem;
+  border-radius: 4px;
+  border: 1px solid var(--gray-500);
+}
+.selector label {
+  font-size: 0.9rem;
 }
 
-.left { display:flex; align-items:center; gap:1.25rem }
-.app-title a { color: white; text-decoration: none; font-size: 1.25rem; font-weight: 700 }
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+.mobile-menu-toggle .bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px 0;
+  background-color: white;
+  transition: 0.4s;
+}
+
+.mobile-menu {
+  display: none;
+}
 
 .app-main {
-  padding: 1rem;
+  padding: var(--spacing-lg);
 }
 
 .selection-prompt {
   text-align: center;
-  padding: 4rem 2rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin: 2rem auto;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  margin: var(--spacing-xl) auto;
   max-width: 600px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--gray-200);
 }
-.selection-prompt h2 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
-.selection-prompt p {
-  color: #34495e;
-  font-size: 1.1rem;
+.selection-prompt h2 { margin-bottom: var(--spacing-md); }
+.selection-prompt p { font-size: 1.1rem; }
+
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .desktop-nav, .desktop-selectors {
+    display: none;
+  }
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .mobile-menu {
+    display: block;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: var(--secondary-color);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--gray-600);
+    transform: translateY(-120%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .mobile-menu.is-open {
+    transform: translateY(0);
+  }
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-600);
+    padding-bottom: var(--spacing-lg);
+  }
+  .mobile-selectors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  .mobile-selectors .selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .mobile-selectors .selector select {
+    width: 60%;
+  }
 }
 </style>

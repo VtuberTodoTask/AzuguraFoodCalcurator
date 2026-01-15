@@ -218,4 +218,33 @@ const saveHistory = async () => {
 .save-history .help-text {
   margin-bottom: 1rem;
 }
+
+@media (max-width: 768px) {
+  .selection-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .form-actions {
+    justify-content: flex-start;
+  }
+  .selected-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .selected-list .right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .total {
+    text-align: left;
+  }
+  .save-history input, .save-history button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .save-history button {
+    margin-top: 0.5rem;
+  }
+}
 </style>
