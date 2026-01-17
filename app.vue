@@ -8,6 +8,7 @@
             <NuxtLink to="/calculator" class="nav-link">アイテム計算</NuxtLink>
             <NuxtLink to="/billing" class="nav-link">請求計算</NuxtLink>
             <NuxtLink to="/sales-history" class="nav-link">売上履歴</NuxtLink>
+            <NuxtLink to="/games" class="nav-link">暇つぶし</NuxtLink>
             <template v-if="isManagerSelected">
               <NuxtLink to="/materials" class="nav-link">原材料</NuxtLink>
               <NuxtLink to="/recipes" class="nav-link">レシピ</NuxtLink>
@@ -49,6 +50,7 @@
           <NuxtLink to="/calculator" class="nav-link" @click="isMenuOpen = false">アイテム計算</NuxtLink>
           <NuxtLink to="/billing" class="nav-link" @click="isMenuOpen = false">請求計算</NuxtLink>
           <NuxtLink to="/sales-history" class="nav-link" @click="isMenuOpen = false">売上履歴</NuxtLink>
+          <NuxtLink to="/games" class="nav-link" @click="isMenuOpen = false">暇つぶし</NuxtLink>
           <template v-if="isManagerSelected">
             <NuxtLink to="/materials" class="nav-link" @click="isMenuOpen = false">原材料</NuxtLink>
             <NuxtLink to="/recipes" class="nav-link" @click="isMenuOpen = false">レシピ</NuxtLink>
